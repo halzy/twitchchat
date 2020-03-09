@@ -18,15 +18,17 @@ rustdoc-args = ["--cfg", "docsrs"]
 [features]
 default = ["async", "tls"]
 async   = ["tokio", "futures"]
-tls     = ["tokio-tls", "native-tls"]
+tls     = ["tokio-rustls", "webpki", "webpki-roots"]
+
 
 [dependencies]
-futures    = { version = "0.3.4", optional = true, default-features = false, features = ["alloc"] } # for AbortHandle
-log        = "0.4.8"
-native-tls = { version = "0.2.3", optional = true }
-serde      = { version = "1.0.104", optional = true, features = ["derive"] }
-tokio      = { version = "0.2.11", optional = true, features = ["dns", "io-util", "stream", "sync", "tcp", "time"] }
-tokio-tls  = { version = "0.3.0", optional = true }
+futures       = { version = "0.3.4", optional = true, default-features = false, features = ["alloc"] } # for AbortHandle
+log           = { version = "0.4.8" }
+serde         = { version = "1.0.104", optional = true, features = ["derive"] }
+tokio         = { version = "0.2.11", optional = true, features = ["dns", "io-util", "stream", "sync", "tcp", "time"] }
+tokio-rustls  = { version = "0.13.0", optional = true }
+webpki        = { version = "0.21.2", optional = true }
+webpki-roots  = { version = "0.19.0", optional = true }
 
 [dev-dependencies]
 matches = "0.1.8"

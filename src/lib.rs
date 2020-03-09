@@ -162,12 +162,16 @@ cfg_async! {
     async fn connect_tls(addr: &str) -> std::io::Result<impl AsyncWrite + AsyncRead + Unpin> {
         use std::io::{Error, ErrorKind};
         let stream = tokio::net::TcpStream::connect(addr).await?;
-        let conn: tokio_tls::TlsConnector = native_tls::TlsConnector::new()
-            .map_err(|err| Error::new(ErrorKind::Other, err))?
-            .into();
-        conn.connect(TWITCH_DOMAIN, stream)
-            .await
-            .map_err(|err| Error::new(ErrorKind::Other, err))
+
+        let mut config = tokio_rustls::rustls::ClientConfig::new();
+        config.root_store.add_server_trust_anchors(&webpki_roots::TLS_SERVER_ROOTS);
+        let connector = tokio_rustls::TlsConnector::from(std::sync::Arc::new(config));
+        let conn = connector.connect(
+            webpki::DNSNameRef::try_from_ascii_str(TWITCH_DOMAIN).unwrap(),
+            stream
+        )
+        .await.map_err(|err| Error::new(ErrorKind::Other, err))?;
+        Ok(conn)
     }
 
     /// Boxed AsyncRead
